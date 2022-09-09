@@ -17,7 +17,7 @@
 #Source the Automation Script variables
 
 
-FILE="/home/$USER/airlines-self-service-framework/demo.cfg"
+FILE="/home/$USER/demo.cfg"
 if [ -f "$FILE" ]; then
     echo "$FILE exists."
     echo "list Automation script variables"
@@ -45,7 +45,7 @@ EXT_DB_PASSWORD='vXNhq6th!jYXn9Wn'
 EXT_DB_PORT="5432"
 
 # Default Variables required to execute this script
-DIRECTORY="/home/$USER/airlines-self-service-framework/cdpone_automation"
+DIRECTORY="/home/$USER/cdpone_automation"
 NIFI_REGISTRY_FLOW_VERSION="1"
 NIFI_REGISTRY_BUCKET="Default"
 GIT_REPO_DIRECTORY="airlines-self-service-framework/deployment/ingest"
@@ -96,7 +96,7 @@ for filename in ${DIRECTORY}/${GIT_REPO_DIRECTORY}/*.json; do
     export PATH=$PATH:/opt/cloudera/parcels/CFM-2.2.5.0/TOOLKIT/bin
     cli.sh session set nifi.reg.props ${DIRECTORY}/nifi.properties
     echo "nifi cli session created"
-    bucket_id=$(cli.sh registry list-buckets -bau ${CDP_ONE_USERNAME} -bap '${CDP_ONE_PASSWORD}' -ot json | jq '.[] | select(.name=="'${NIFI_REGISTRY_BUCKET}'") | .identifier')
+    bucket_id=$(cli.sh registry list-buckets -bau ${CDP_ONE_USERNAME} -bap ${CDP_ONE_PASSWORD} -ot json | jq '.[] | select(.name=="'${NIFI_REGISTRY_BUCKET}'") | .identifier')
     if [ -z "$bucket_id" ]; then
         echo "Buckets not found"
         return 1
@@ -142,7 +142,7 @@ for filename in ${DIRECTORY}/${GIT_REPO_DIRECTORY}/*.json; do
             echo "Updated stage 1 parameter cdp-username"
         fi
 
-        stage_1_update_param_cdp_password=$(cli.sh nifi set-param -pcid "${STAGE_1_PARAM_CONTEXT_ID}" -pn cdp-password -pv '${CDP_ONE_PASSWORD}' -u "${CDP_ONE_NIFI_URL}" -ts "${CDP_ONE_TRUSTSTORE}" -tst "${CDP_ONE_TRUSTSTORE_TYPE}" -tsp "${CDP_ONE_TRUSTSTORE_PASSSWORD}" -bau "${CDP_ONE_USERNAME}" -bap "${CDP_ONE_PASSWORD}")
+        stage_1_update_param_cdp_password=$(cli.sh nifi set-param -pcid "${STAGE_1_PARAM_CONTEXT_ID}" -pn cdp-password -pv ${CDP_ONE_PASSWORD} -u "${CDP_ONE_NIFI_URL}" -ts "${CDP_ONE_TRUSTSTORE}" -tst "${CDP_ONE_TRUSTSTORE_TYPE}" -tsp "${CDP_ONE_TRUSTSTORE_PASSSWORD}" -bau "${CDP_ONE_USERNAME}" -bap "${CDP_ONE_PASSWORD}")
 
         if [ "$EXT_DB_HOST" != "self-service-trial-source.cluster-cohsea0udkfq.us-east-1.rds.amazonaws.com" ]; then
             stage_1_update_param_db_host=$(cli.sh nifi set-param -pcid "${STAGE_1_PARAM_CONTEXT_ID}" -pn db_host -pv "${EXT_DB_HOST}" -u "${CDP_ONE_NIFI_URL}" -ts "${CDP_ONE_TRUSTSTORE}" -tst "${CDP_ONE_TRUSTSTORE_TYPE}" -tsp "${CDP_ONE_TRUSTSTORE_PASSSWORD}" -bau "${CDP_ONE_USERNAME}" -bap "${CDP_ONE_PASSWORD}")
@@ -178,7 +178,7 @@ for filename in ${DIRECTORY}/${GIT_REPO_DIRECTORY}/*.json; do
             echo "Updated stage 1 parameter cdp-username"
         fi
 
-        stage_2_update_param_cdp_password=$(cli.sh nifi set-param -pcid "${STAGE_2_PARAM_CONTEXT_ID}"   -pn cdp-password -pv '${CDP_ONE_PASSWORD}' -u "${CDP_ONE_NIFI_URL}" -ts "${CDP_ONE_TRUSTSTORE}" -tst "${CDP_ONE_TRUSTSTORE_TYPE}" -tsp "${CDP_ONE_TRUSTSTORE_PASSSWORD}" -bau "${CDP_ONE_USERNAME}" -bap "${CDP_ONE_PASSWORD}")
+        stage_2_update_param_cdp_password=$(cli.sh nifi set-param -pcid "${STAGE_2_PARAM_CONTEXT_ID}"   -pn cdp-password -pv ${CDP_ONE_PASSWORD} -u "${CDP_ONE_NIFI_URL}" -ts "${CDP_ONE_TRUSTSTORE}" -tst "${CDP_ONE_TRUSTSTORE_TYPE}" -tsp "${CDP_ONE_TRUSTSTORE_PASSSWORD}" -bau "${CDP_ONE_USERNAME}" -bap "${CDP_ONE_PASSWORD}")
 
         if [ "$HIVE_DATABASE_NAME" != "airlines" ]; then
             stage_2_update_param_hive_database_name=$(cli.sh nifi set-param -pcid "${STAGE_2_PARAM_CONTEXT_ID}" -pn hive_database -pv "${HIVE_DATABASE_NAME}" -u "${CDP_ONE_NIFI_URL}" -ts "${CDP_ONE_TRUSTSTORE}" -tst "${CDP_ONE_TRUSTSTORE_TYPE}" -tsp "${CDP_ONE_TRUSTSTORE_PASSSWORD}" -bau "${CDP_ONE_USERNAME}" -bap "${CDP_ONE_PASSWORD}")
