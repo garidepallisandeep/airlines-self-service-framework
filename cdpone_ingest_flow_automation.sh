@@ -10,14 +10,14 @@
 # How to run this workflow
 
 # This script requires demo.cfg file should be available 
-# Copy demo.cfg file to /home/$USER/demo.cfg
+# Copy demo.cfg file to /home/$USER/airlines-self-service-framework/demo.cfg
 # Execute this script sh cdpone_ingest_flow_automation.sh
 
 
 #Source the Automation Script variables
 
 
-FILE="/home/$USER/demo.cfg"
+FILE="/home/$USER/airlines-self-service-framework/demo.cfg"
 if [ -f "$FILE" ]; then
     echo "$FILE exists."
     echo "list Automation script variables"
@@ -45,7 +45,7 @@ EXT_DB_PASSWORD='vXNhq6th!jYXn9Wn'
 EXT_DB_PORT="5432"
 
 # Default Variables required to execute this script
-DIRECTORY="/home/$USER/cdpone_automation"
+DIRECTORY="/home/$USER/airlines-self-service-framework/cdpone_automation"
 NIFI_REGISTRY_FLOW_VERSION="1"
 NIFI_REGISTRY_BUCKET="Default"
 GIT_REPO_DIRECTORY="airlines-self-service-framework/deployment/ingest"
