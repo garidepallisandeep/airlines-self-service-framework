@@ -17,7 +17,7 @@
 #Source the Automation Script variables
 
 
-FILE="/home/$USER/demo.cfg"
+FILE="/home/$USER/airlines-self-service-framework/demo.cfg"
 if [ -f "$FILE" ]; then
     echo "$FILE exists."
     echo "list Automation script variables"
@@ -45,7 +45,7 @@ EXT_DB_PASSWORD='vXNhq6th!jYXn9Wn'
 EXT_DB_PORT="5432"
 
 # Default Variables required to execute this script
-DIRECTORY="/home/$USER/cdpone_automation"
+DIRECTORY="/home/$USER/airlines-self-service-framework/cdpone_automation"
 NIFI_REGISTRY_FLOW_VERSION="1"
 NIFI_REGISTRY_BUCKET="Default"
 GIT_REPO_DIRECTORY="airlines-self-service-framework/deployment/ingest"
@@ -82,6 +82,7 @@ git clone https://github.com/garidepallisandeep/airlines-self-service-framework.
 if [ ! -d "$GIT_REPO_DIRECTORY" ]; then
     echo "$DIRECTORY git clone failed."
     return 1
+    exit
 else
     echo "$DIRECTORY git clone successful."
 fi
@@ -99,6 +100,7 @@ for filename in ${DIRECTORY}/${GIT_REPO_DIRECTORY}/*.json; do
     if [ -z "$bucket_id" ]; then
         echo "Buckets not found"
         return 1
+        exit
     else
         echo "$bucket_id"
     fi
@@ -113,6 +115,7 @@ for filename in ${DIRECTORY}/${GIT_REPO_DIRECTORY}/*.json; do
     if [ -z "$flow_id" ]; then
         echo "flow not found"
         return 1
+        exit
     else
         echo $flow_id
     fi
@@ -126,6 +129,7 @@ for filename in ${DIRECTORY}/${GIT_REPO_DIRECTORY}/*.json; do
     if [ -z "$create_flow_nifi" ]; then
         echo "Create flow in nifi"
         return 1
+        exit
     else
         echo $create_flow_nifi
     fi
