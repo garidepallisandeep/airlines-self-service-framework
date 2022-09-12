@@ -53,7 +53,7 @@ GIT_REPO_DIRECTORY="opendatalakehouse/deployment/ingest"
 # STAGE_1_PARAM_CONTEXT_ID="ec9a0d3b-a9de-3db8-b302-9af696e4906d"
 # STAGE_2_PARAM_CONTEXT_ID="8034babb-2e0d-3559-9722-9161d81a2dbd"
 
-start_inget_flows="false"
+start_inget_flows="true"
 
 if [ ! -d "$DIRECTORY" ]; then
   mkdir ${DIRECTORY}
@@ -240,18 +240,20 @@ if [ "${start_inget_flows}" == "true" ]; then
     PRE_REQ_PG_ID=$(cli.sh nifi pg-list -u "${CDP_ONE_NIFI_URL}" -ts "${CDP_ONE_TRUSTSTORE}" -tst "${CDP_ONE_TRUSTSTORE_TYPE}" -tsp "${CDP_ONE_TRUSTSTORE_PASSSWORD}" -bau "${CDP_ONE_USERNAME}" -bap "${CDP_ONE_PASSWORD}" -ot json| jq '.[]| select( .name == "(1. Pre-requisite) Download connector for Database source") |.versionControlInformation.groupId')
     echo "PG ID for (1. Pre-requisite) Download connector for Database source is: ${PRE_REQ_PG_ID}"
 
-    sleep 10
     echo "Get the Process Group ID ID for: Step 1) Load from source DB to CDP One Landing zone"
     STAGE_1_PG_ID=$(cli.sh nifi pg-list -u "${CDP_ONE_NIFI_URL}" -ts "${CDP_ONE_TRUSTSTORE}" -tst "${CDP_ONE_TRUSTSTORE_TYPE}" -tsp "${CDP_ONE_TRUSTSTORE_PASSSWORD}" -bau "${CDP_ONE_USERNAME}" -bap "${CDP_ONE_PASSWORD}" -ot json| jq '.[]| select( .name == "Step 1) Load from source DB to CDP One Landing zone") |.versionControlInformation.groupId')
     echo "PG ID for Step 1) Load from source DB to CDP One Landing zone is: ${STAGE_1_PG_ID}"
 
-    sleep 10
     echo "Get the Process Group ID for: Step 2) Data Engineering & ETL/ELT"
     STAGE_2_PG_ID=$(cli.sh nifi pg-list -u "${CDP_ONE_NIFI_URL}" -ts "${CDP_ONE_TRUSTSTORE}" -tst "${CDP_ONE_TRUSTSTORE_TYPE}" -tsp "${CDP_ONE_TRUSTSTORE_PASSSWORD}" -bau "${CDP_ONE_USERNAME}" -bap "${CDP_ONE_PASSWORD}" -ot json| jq '.[]| select( .name == "Step 2) Data Engineering & ETL/ELT") |.versionControlInformation.groupId')
     echo "PG ID for Step  Step 2) Data Engineering & ETL/ELT is: ${STAGE_1_PG_ID}"
 
     START_PRE_REQ_FLOW=$(cli.sh nifi pg-start -pgid ${PRE_REQ_PG_ID} -u "${CDP_ONE_NIFI_URL}" -ts "${CDP_ONE_TRUSTSTORE}" -tst "${CDP_ONE_TRUSTSTORE_TYPE}" -tsp "${CDP_ONE_TRUSTSTORE_PASSSWORD}" -bau "${CDP_ONE_USERNAME}" -bap "${CDP_ONE_PASSWORD}")
+    sleep 10
+
     START_STAGE_1_FLOW=$(cli.sh nifi pg-start -pgid ${STAGE_1_PG_ID} -u "${CDP_ONE_NIFI_URL}" -ts "${CDP_ONE_TRUSTSTORE}" -tst "${CDP_ONE_TRUSTSTORE_TYPE}" -tsp "${CDP_ONE_TRUSTSTORE_PASSSWORD}" -bau "${CDP_ONE_USERNAME}" -bap "${CDP_ONE_PASSWORD}")
+    sleep 10
+    
     START_STAGE_2_FLOW=$(cli.sh nifi pg-start -pgid ${STAGE_2_PG_ID} -u "${CDP_ONE_NIFI_URL}" -ts "${CDP_ONE_TRUSTSTORE}" -tst "${CDP_ONE_TRUSTSTORE_TYPE}" -tsp "${CDP_ONE_TRUSTSTORE_PASSSWORD}" -bau "${CDP_ONE_USERNAME}" -bap "${CDP_ONE_PASSWORD}")
 fi
 
