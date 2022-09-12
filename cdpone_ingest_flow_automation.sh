@@ -10,14 +10,14 @@
 # How to run this workflow
 
 # This script requires demo.cfg file should be available 
-# Copy demo.cfg file to /home/$USER/airlines-self-service-framework/demo.cfg
+# Copy demo.cfg file to /home/$USER/demo.cfg
 # Execute this script sh cdpone_ingest_flow_automation.sh
 
 
 #Source the Automation Script variables
 
 
-FILE="/home/$USER/airlines-self-service-framework/demo.cfg"
+FILE="/home/$USER/opnedatalakehouse/demo.cfg"
 if [ -f "$FILE" ]; then
     echo "$FILE exists."
     echo "list Automation script variables"
@@ -41,14 +41,14 @@ HIVE_DATABASE_NAME="airlines"
 EXT_DB_HOST="self-service-trial-source.cluster-cohsea0udkfq.us-east-1.rds.amazonaws.com"
 EXT_DB_NAME="airlinedata"
 EXT_DB_USERNAME="sstreadwrite"
-EXT_DB_PASSWORD='vXNhq6th!jYXn9Wn'
+EXT_DB_PASSWORD="vXNhq6th!jYXn9Wn"
 EXT_DB_PORT="5432"
 
 # Default Variables required to execute this script
-DIRECTORY="/home/$USER/airlines-self-service-framework/cdpone_automation"
+DIRECTORY="/home/$USER/opnedatalakehouse/cdpone_automation"
 NIFI_REGISTRY_FLOW_VERSION="1"
 NIFI_REGISTRY_BUCKET="Default"
-GIT_REPO_DIRECTORY="airlines-self-service-framework/deployment/ingest"
+GIT_REPO_DIRECTORY="opnedatalakehouse/deployment/ingest"
 
 STAGE_1_PARAM_CONTEXT_ID="ec9a0d3b-a9de-3db8-b302-9af696e4906d"
 STAGE_2_PARAM_CONTEXT_ID="8034babb-2e0d-3559-9722-9161d81a2dbd"
@@ -142,7 +142,7 @@ for filename in ${DIRECTORY}/${GIT_REPO_DIRECTORY}/*.json; do
             echo "Updated stage 1 parameter cdp-username"
         fi
 
-        stage_1_update_param_cdp_password=$(cli.sh nifi set-param -pcid "${STAGE_1_PARAM_CONTEXT_ID}" -pn cdp-password -pv ${CDP_ONE_PASSWORD} -u "${CDP_ONE_NIFI_URL}" -ts "${CDP_ONE_TRUSTSTORE}" -tst "${CDP_ONE_TRUSTSTORE_TYPE}" -tsp "${CDP_ONE_TRUSTSTORE_PASSSWORD}" -bau "${CDP_ONE_USERNAME}" -bap "${CDP_ONE_PASSWORD}")
+        stage_1_update_param_cdp_password=$(cli.sh nifi set-param -pcid "${STAGE_1_PARAM_CONTEXT_ID}" -pn cdp-password -pv "${CDP_ONE_PASSWORD}" -u "${CDP_ONE_NIFI_URL}" -ts "${CDP_ONE_TRUSTSTORE}" -tst "${CDP_ONE_TRUSTSTORE_TYPE}" -tsp "${CDP_ONE_TRUSTSTORE_PASSSWORD}" -bau "${CDP_ONE_USERNAME}" -bap "${CDP_ONE_PASSWORD}")
 
         if [ "$EXT_DB_HOST" != "self-service-trial-source.cluster-cohsea0udkfq.us-east-1.rds.amazonaws.com" ]; then
             stage_1_update_param_db_host=$(cli.sh nifi set-param -pcid "${STAGE_1_PARAM_CONTEXT_ID}" -pn db_host -pv "${EXT_DB_HOST}" -u "${CDP_ONE_NIFI_URL}" -ts "${CDP_ONE_TRUSTSTORE}" -tst "${CDP_ONE_TRUSTSTORE_TYPE}" -tsp "${CDP_ONE_TRUSTSTORE_PASSSWORD}" -bau "${CDP_ONE_USERNAME}" -bap "${CDP_ONE_PASSWORD}")
@@ -153,7 +153,7 @@ for filename in ${DIRECTORY}/${GIT_REPO_DIRECTORY}/*.json; do
             stage_1_update_param_db_name=$(cli.sh nifi set-param -pcid "${STAGE_1_PARAM_CONTEXT_ID}" -pn db_name -pv ${EXT_DB_NAME} -u "${CDP_ONE_NIFI_URL}" -ts "${CDP_ONE_TRUSTSTORE}" -tst "${CDP_ONE_TRUSTSTORE_TYPE}" -tsp "${CDP_ONE_TRUSTSTORE_PASSSWORD}" -bau "${CDP_ONE_USERNAME}" -bap "${CDP_ONE_PASSWORD}")
             echo "Updated stage 1 parameter ext-db-name"
         fi
-        # stage_1_update_param_db_password=$(cli.sh nifi set-param -pcid "${STAGE_1_PARAM_CONTEXT_ID}" -pn db_password -pv '${EXT_DB_PASSWORD}' -u "${CDP_ONE_NIFI_URL}" -ts "${CDP_ONE_TRUSTSTORE}" -tst "${CDP_ONE_TRUSTSTORE_TYPE}" -tsp "${CDP_ONE_TRUSTSTORE_PASSSWORD}" -bau "${CDP_ONE_USERNAME}" -bap "${CDP_ONE_PASSWORD}")
+        stage_1_update_param_db_password=$(cli.sh nifi set-param -pcid "${STAGE_1_PARAM_CONTEXT_ID}" -pn db_password -pv '${EXT_DB_PASSWORD}' -u "${CDP_ONE_NIFI_URL}" -ts "${CDP_ONE_TRUSTSTORE}" -tst "${CDP_ONE_TRUSTSTORE_TYPE}" -tsp "${CDP_ONE_TRUSTSTORE_PASSSWORD}" -bau "${CDP_ONE_USERNAME}" -bap "${CDP_ONE_PASSWORD}")
 
         if [ "$EXT_DB_PORT" != "5432" ]; then
             stage_1_update_param_db_port=$(cli.sh nifi set-param -pcid "${STAGE_1_PARAM_CONTEXT_ID}" -pn db_port -pv ${EXT_DB_PORT} -u "${CDP_ONE_NIFI_URL}" -ts "${CDP_ONE_TRUSTSTORE}" -tst "${CDP_ONE_TRUSTSTORE_TYPE}" -tsp "${CDP_ONE_TRUSTSTORE_PASSSWORD}" -bau "${CDP_ONE_USERNAME}" -bap "${CDP_ONE_PASSWORD}")
