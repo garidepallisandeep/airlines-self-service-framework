@@ -81,8 +81,7 @@ git clone https://github.com/garidepallisandeep/opnedatalakehouse.git
 
 if [ ! -d "$GIT_REPO_DIRECTORY" ]; then
     echo "$DIRECTORY git clone failed."
-    return 1
-    exit
+    exit 1
 else
     echo "$DIRECTORY git clone successful."
 fi
@@ -99,8 +98,7 @@ for filename in ${DIRECTORY}/${GIT_REPO_DIRECTORY}/*.json; do
     bucket_id=$(cli.sh registry list-buckets -bau ${CDP_ONE_USERNAME} -bap ${CDP_ONE_PASSWORD} -ot json | jq '.[] | select(.name=="'${NIFI_REGISTRY_BUCKET}'") | .identifier')
     if [ -z "$bucket_id" ]; then
         echo "Buckets not found"
-        return 1
-        exit
+        exit 1
     else
         echo "$bucket_id"
     fi
@@ -114,8 +112,7 @@ for filename in ${DIRECTORY}/${GIT_REPO_DIRECTORY}/*.json; do
     flow_id=$(cli.sh registry list-flows -b ${bucket_id} -bau ${CDP_ONE_USERNAME} -bap ${CDP_ONE_PASSWORD} -ot json | jq '.[] | select(.name=="'${file}'") | .identifier')
     if [ -z "$flow_id" ]; then
         echo "flow not found"
-        return 1
-        exit
+        exit 1
     else
         echo $flow_id
     fi
@@ -128,8 +125,7 @@ for filename in ${DIRECTORY}/${GIT_REPO_DIRECTORY}/*.json; do
     create_flow_nifi=$(cli.sh nifi pg-import -b "${bucket_id}" -f "${flow_id}" -fv "${NIFI_REGISTRY_FLOW_VERSION}" -u "${CDP_ONE_NIFI_URL}" -ts "${CDP_ONE_TRUSTSTORE}" -tst "${CDP_ONE_TRUSTSTORE_TYPE}" -tsp "${CDP_ONE_TRUSTSTORE_PASSSWORD}" -bau "${CDP_ONE_USERNAME}" -bap "${CDP_ONE_PASSWORD}")
     if [ -z "$create_flow_nifi" ]; then
         echo "Create flow in nifi"
-        return 1
-        exit
+        exit 1
     else
         echo $create_flow_nifi
     fi
