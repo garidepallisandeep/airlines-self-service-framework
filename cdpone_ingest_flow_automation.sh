@@ -77,7 +77,7 @@ ls -ltr ${DIRECTORY}/nifi.properties
 
 # Git Clone the Nifi Ingest flows 
 
-git clone https://github.com/garidepallisandeep/airlines-self-service-framework.git
+git clone https://github.com/garidepallisandeep/opnedatalakehouse.git
 
 if [ ! -d "$GIT_REPO_DIRECTORY" ]; then
     echo "$DIRECTORY git clone failed."
