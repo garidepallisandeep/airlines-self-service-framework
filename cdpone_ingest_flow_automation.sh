@@ -17,7 +17,7 @@
 #Source the Automation Script variables
 
 
-FILE="/home/$USER/opnedatalakehouse/demo.cfg"
+FILE="/home/$USER/opendatalakehouse/demo.cfg"
 if [ -f "$FILE" ]; then
     echo "$FILE exists."
     echo "list Automation script variables"
@@ -45,10 +45,10 @@ EXT_DB_PASSWORD="vXNhq6th!jYXn9Wn"
 EXT_DB_PORT="5432"
 
 # Default Variables required to execute this script
-DIRECTORY="/home/$USER/opnedatalakehouse/cdpone_automation"
+DIRECTORY="/home/$USER/opendatalakehouse/cdpone_automation"
 NIFI_REGISTRY_FLOW_VERSION="1"
 NIFI_REGISTRY_BUCKET="Default"
-GIT_REPO_DIRECTORY="opnedatalakehouse/deployment/ingest"
+GIT_REPO_DIRECTORY="opendatalakehouse/deployment/ingest"
 
 STAGE_1_PARAM_CONTEXT_ID="ec9a0d3b-a9de-3db8-b302-9af696e4906d"
 STAGE_2_PARAM_CONTEXT_ID="8034babb-2e0d-3559-9722-9161d81a2dbd"
@@ -77,7 +77,7 @@ ls -ltr ${DIRECTORY}/nifi.properties
 
 # Git Clone the Nifi Ingest flows 
 
-git clone https://github.com/garidepallisandeep/opnedatalakehouse.git
+git clone https://github.com/garidepallisandeep/opendatalakehouse.git
 
 if [ ! -d "$GIT_REPO_DIRECTORY" ]; then
     echo "$DIRECTORY git clone failed."
