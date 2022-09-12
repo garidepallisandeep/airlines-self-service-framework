@@ -209,7 +209,7 @@ for filename in ${DIRECTORY}/${GIT_REPO_DIRECTORY}/*.json; do
         STAGE_2_DELETE_PARAM_CDP_PASSWORD=$(cli.sh nifi delete-param -pcid ${STAGE_2_PARAM_CONTEXT_ID} -pn cdp-password -u "${CDP_ONE_NIFI_URL}" -ts "${CDP_ONE_TRUSTSTORE}" -tst "${CDP_ONE_TRUSTSTORE_TYPE}" -tsp "${CDP_ONE_TRUSTSTORE_PASSSWORD}" -bau "${CDP_ONE_USERNAME}" -bap "${CDP_ONE_PASSWORD}")
 
         echo "set the parameter stage-2 cdp-password"
-        STAGE_2_SET_PARAM_CDP_PASSWORD=$(cli.sh nifi set-param -pcid "${STAGE_2_PARAM_CONTEXT_ID}" -pn cdp-password -pv '${CDP_ONE_PASSWORD}' -ps "true" -u "${CDP_ONE_NIFI_URL}" -ts "${CDP_ONE_TRUSTSTORE}" -tst "${CDP_ONE_TRUSTSTORE_TYPE}" -tsp "${CDP_ONE_TRUSTSTORE_PASSSWORD}" -bau "${CDP_ONE_USERNAME}" -bap "${CDP_ONE_PASSWORD}")
+        STAGE_2_SET_PARAM_CDP_PASSWORD=$(cli.sh nifi set-param -pcid "${STAGE_2_PARAM_CONTEXT_ID}" -pn cdp-password -pv ${CDP_ONE_PASSWORD} -ps "true" -u "${CDP_ONE_NIFI_URL}" -ts "${CDP_ONE_TRUSTSTORE}" -tst "${CDP_ONE_TRUSTSTORE_TYPE}" -tsp "${CDP_ONE_TRUSTSTORE_PASSSWORD}" -bau "${CDP_ONE_USERNAME}" -bap "${CDP_ONE_PASSWORD}")
 
         echo "Enable Stage 2 the controller services"
         STAGE_2_ENABLE_CONTROLLER_SERVICE=$(cli.sh nifi pg-enable-services -pgid "${STAGE_2_PG_ID}" -u "${CDP_ONE_NIFI_URL}" -ts "${CDP_ONE_TRUSTSTORE}" -tst "${CDP_ONE_TRUSTSTORE_TYPE}" -tsp "${CDP_ONE_TRUSTSTORE_PASSSWORD}" -bau "${CDP_ONE_USERNAME}" -bap "${CDP_ONE_PASSWORD}")
