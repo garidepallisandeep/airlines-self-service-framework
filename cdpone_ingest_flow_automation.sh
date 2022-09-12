@@ -50,8 +50,8 @@ NIFI_REGISTRY_FLOW_VERSION="1"
 NIFI_REGISTRY_BUCKET="Default"
 GIT_REPO_DIRECTORY="opendatalakehouse/deployment/ingest"
 
-STAGE_1_PARAM_CONTEXT_ID="ec9a0d3b-a9de-3db8-b302-9af696e4906d"
-STAGE_2_PARAM_CONTEXT_ID="8034babb-2e0d-3559-9722-9161d81a2dbd"
+# STAGE_1_PARAM_CONTEXT_ID="ec9a0d3b-a9de-3db8-b302-9af696e4906d"
+# STAGE_2_PARAM_CONTEXT_ID="8034babb-2e0d-3559-9722-9161d81a2dbd"
 
 
 if [ ! -d "$DIRECTORY" ]; then
@@ -134,7 +134,12 @@ for filename in ${DIRECTORY}/${GIT_REPO_DIRECTORY}/*.json; do
     # Updated Nifi flow Stage 1 load-data-from-ext-db Parameter Context
     if [ "$file" == "step_1_load_from_source_db_to_cdp_one_landing_zone" ]; then
         
+        echo "Get the load-data-from-ext-db parameter context ID"
+        STAGE_1_PARAM_CONTEXT_ID=$(cli.sh nifi list-param-contexts -u "${CDP_ONE_NIFI_URL}" -ts "${CDP_ONE_TRUSTSTORE}" -tst "${CDP_ONE_TRUSTSTORE_TYPE}" -tsp "${CDP_ONE_TRUSTSTORE_PASSSWORD}" -bau "${CDP_ONE_USERNAME}" -bap "${CDP_ONE_PASSWORD}" -ot json | jq '.parameterContexts[].component| select( .name == "load-data-from-ext-db") |.id')
+        echo "load-data-from-ext-db parameter context ID ${STAGE_1_PARAM_CONTEXT_ID}"
+        
         echo "Set the Ext DB Password"
+
         stage_1_update_param_db_password=$(cli.sh nifi set-param -pcid "${STAGE_1_PARAM_CONTEXT_ID}" -pn db_password -ps "Yes" -pv "${EXT_DB_PASSWORD}" -u "${CDP_ONE_NIFI_URL}" -ts "${CDP_ONE_TRUSTSTORE}" -tst "${CDP_ONE_TRUSTSTORE_TYPE}" -tsp "${CDP_ONE_TRUSTSTORE_PASSSWORD}" -bau "${CDP_ONE_USERNAME}" -bap "${CDP_ONE_PASSWORD}")
         
         echo "Set the CDP Password"
@@ -171,6 +176,10 @@ for filename in ${DIRECTORY}/${GIT_REPO_DIRECTORY}/*.json; do
 
     # Updated Nifi flow Stage 2 ETL and Data Engineering Parameter Context
     if [ "$file" == "step_2_data_engineering_ETL" ]; then
+        echo "Get the cdp-create-hive-table-from-s3 parameter context ID"
+        STAGE_2_PARAM_CONTEXT_ID=$(cli.sh nifi list-param-contexts -u "${CDP_ONE_NIFI_URL}" -ts "${CDP_ONE_TRUSTSTORE}" -tst "${CDP_ONE_TRUSTSTORE_TYPE}" -tsp "${CDP_ONE_TRUSTSTORE_PASSSWORD}" -bau "${CDP_ONE_USERNAME}" -bap "${CDP_ONE_PASSWORD}" -ot json | jq '.parameterContexts[].component| select( .name == "cdp-create-hive-table-from-s3") |.id')
+        echo "cdp-create-hive-table-from-s3 parameter context ID ${STAGE_2_PARAM_CONTEXT_ID}"
+
         stage_2_update_param_cdp_password=$(cli.sh nifi set-param -pcid "${STAGE_2_PARAM_CONTEXT_ID}"   -pn cdp-password  -ps "Yes" -pv "${CDP_ONE_PASSWORD}" -u "${CDP_ONE_NIFI_URL}" -ts "${CDP_ONE_TRUSTSTORE}" -tst "${CDP_ONE_TRUSTSTORE_TYPE}" -tsp "${CDP_ONE_TRUSTSTORE_PASSSWORD}" -bau "${CDP_ONE_USERNAME}" -bap "${CDP_ONE_PASSWORD}")
         if [ "$CDP_ONE_USERNAME" != "gsandeepkumar" ]; then
             stage_2_update_param_cdp_username=$(cli.sh nifi set-param -pcid "${STAGE_2_PARAM_CONTEXT_ID}"  -pn cdp-username -pv "${CDP_ONE_USERNAME}" -u "${CDP_ONE_NIFI_URL}" -ts "${CDP_ONE_TRUSTSTORE}" -tst "${CDP_ONE_TRUSTSTORE_TYPE}" -tsp "${CDP_ONE_TRUSTSTORE_PASSSWORD}" -bau "${CDP_ONE_USERNAME}" -bap "${CDP_ONE_PASSWORD}")
