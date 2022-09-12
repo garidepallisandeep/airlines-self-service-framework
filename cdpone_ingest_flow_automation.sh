@@ -41,7 +41,7 @@ HIVE_DATABASE_NAME="airlines"
 EXT_DB_HOST="self-service-trial-source.cluster-cohsea0udkfq.us-east-1.rds.amazonaws.com"
 EXT_DB_NAME="airlinedata"
 EXT_DB_USERNAME="sstreadwrite"
-EXT_DB_PASSWORD="vXNhq6th!jYXn9Wn"
+EXT_DB_PASSWORD='vXNhq6th!jYXn9Wn'
 EXT_DB_PORT="5432"
 
 # Default Variables required to execute this script
@@ -136,14 +136,28 @@ for filename in ${DIRECTORY}/${GIT_REPO_DIRECTORY}/*.json; do
         
         echo "Get the load-data-from-ext-db parameter context ID"
         STAGE_1_PARAM_CONTEXT_ID=$(cli.sh nifi list-param-contexts -u "${CDP_ONE_NIFI_URL}" -ts "${CDP_ONE_TRUSTSTORE}" -tst "${CDP_ONE_TRUSTSTORE_TYPE}" -tsp "${CDP_ONE_TRUSTSTORE_PASSSWORD}" -bau "${CDP_ONE_USERNAME}" -bap "${CDP_ONE_PASSWORD}" -ot json | jq '.parameterContexts[].component| select( .name == "load-data-from-ext-db") |.id')
-        echo "load-data-from-ext-db parameter context ID ${STAGE_1_PARAM_CONTEXT_ID}"
         
-        echo "Set the Ext DB Password"
+        echo "Get the Pg Group ID for Step 1) Load from source DB to CDP One Landing zone"
+        STAGE_1_PG_ID=$(cli.sh nifi pg-list -u "${CDP_ONE_NIFI_URL}" -ts "${CDP_ONE_TRUSTSTORE}" -tst "${CDP_ONE_TRUSTSTORE_TYPE}" -tsp "${CDP_ONE_TRUSTSTORE_PASSSWORD}" -bau "${CDP_ONE_USERNAME}" -bap "${CDP_ONE_PASSWORD}" -ot json| jq '.[]| select( .name == "Step 1) Load from source DB to CDP One Landing zone") |.versionControlInformation.groupId')
 
-        stage_1_update_param_db_password=$(cli.sh nifi set-param -pcid "${STAGE_1_PARAM_CONTEXT_ID}" -pn db_password -ps "Yes" -pv "${EXT_DB_PASSWORD}" -u "${CDP_ONE_NIFI_URL}" -ts "${CDP_ONE_TRUSTSTORE}" -tst "${CDP_ONE_TRUSTSTORE_TYPE}" -tsp "${CDP_ONE_TRUSTSTORE_PASSSWORD}" -bau "${CDP_ONE_USERNAME}" -bap "${CDP_ONE_PASSWORD}")
+        echo "Disable Stage 1 the controller services"
+        STAGE_1_DISABLE_CONTROLLER_SERVICE=$(cli.sh nifi pg-disable-services -pgid "${STAGE_1_PG_ID}" -u "${CDP_ONE_NIFI_URL}" -ts "${CDP_ONE_TRUSTSTORE}" -tst "${CDP_ONE_TRUSTSTORE_TYPE}" -tsp "${CDP_ONE_TRUSTSTORE_PASSSWORD}" -bau "${CDP_ONE_USERNAME}" -bap "${CDP_ONE_PASSWORD}")
+
+        echo "Delete the stage-1 cdp-password parameter"
+        STAGE_1_DELETE_PARAM_CDP_PASSWORD=$(cli.sh nifi delete-param -pcid ${STAGE_1_PARAM_CONTEXT_ID} -pn cdp-password -u "${CDP_ONE_NIFI_URL}" -ts "${CDP_ONE_TRUSTSTORE}" -tst "${CDP_ONE_TRUSTSTORE_TYPE}" -tsp "${CDP_ONE_TRUSTSTORE_PASSSWORD}" -bau "${CDP_ONE_USERNAME}" -bap "${CDP_ONE_PASSWORD}")
+
+        echo "Delete the stage-1 db_password parameter"
+        STAGE_1_DELETE_PARAM_DB_PASSWORD=$(cli.sh nifi delete-param -pcid ${STAGE_1_PARAM_CONTEXT_ID} -pn db_password -u "${CDP_ONE_NIFI_URL}" -ts "${CDP_ONE_TRUSTSTORE}" -tst "${CDP_ONE_TRUSTSTORE_TYPE}" -tsp "${CDP_ONE_TRUSTSTORE_PASSSWORD}" -bau "${CDP_ONE_USERNAME}" -bap "${CDP_ONE_PASSWORD}")
+
+        echo "Set the stage-1 db_password parameter"
+        STAGE_1_SET_PARAM_DB_PASSWORD=$(cli.sh nifi set-param -pcid "${STAGE_1_PARAM_CONTEXT_ID}" -pn db_password -pv '${EXT_DB_PASSWORD}' -ps "true" -u "${CDP_ONE_NIFI_URL}" -ts "${CDP_ONE_TRUSTSTORE}" -tst "${CDP_ONE_TRUSTSTORE_TYPE}" -tsp "${CDP_ONE_TRUSTSTORE_PASSSWORD}" -bau "${CDP_ONE_USERNAME}" -bap "${CDP_ONE_PASSWORD}")
+
+        echo "Set the stage-1 cdp password parameter"
+        STAGE_1_SET_PARAM_CDP_PASSWORD=$(cli.sh nifi set-param -pcid "${STAGE_1_PARAM_CONTEXT_ID}" -pn cdp-password -pv '${CDP_ONE_PASSWORD}' -ps "true" -u "${CDP_ONE_NIFI_URL}" -ts "${CDP_ONE_TRUSTSTORE}" -tst "${CDP_ONE_TRUSTSTORE_TYPE}" -tsp "${CDP_ONE_TRUSTSTORE_PASSSWORD}" -bau "${CDP_ONE_USERNAME}" -bap "${CDP_ONE_PASSWORD}")
+
+        echo "Enable Stage 1 the controller services"
+        STAGE_1_ENABLE_CONTROLLER_SERVICE=$(cli.sh nifi pg-enable-services -pgid "${STAGE_1_PG_ID}" -u "${CDP_ONE_NIFI_URL}" -ts "${CDP_ONE_TRUSTSTORE}" -tst "${CDP_ONE_TRUSTSTORE_TYPE}" -tsp "${CDP_ONE_TRUSTSTORE_PASSSWORD}" -bau "${CDP_ONE_USERNAME}" -bap "${CDP_ONE_PASSWORD}")
         
-        echo "Set the CDP Password"
-        stage_1_update_param_cdp_password=$(cli.sh nifi set-param -pcid "${STAGE_1_PARAM_CONTEXT_ID}" -pn cdp-password -ps "Yes" -pv "${CDP_ONE_PASSWORD}" -ps "Yes" -u "${CDP_ONE_NIFI_URL}" -ts "${CDP_ONE_TRUSTSTORE}" -tst "${CDP_ONE_TRUSTSTORE_TYPE}" -tsp "${CDP_ONE_TRUSTSTORE_PASSSWORD}" -bau "${CDP_ONE_USERNAME}" -bap "${CDP_ONE_PASSWORD}")
         if [ "$CDP_ONE_USERNAME" != "gsandeepkumar" ]; then
             stage_1_update_param_cdp_username=$(cli.sh nifi set-param -pcid "${STAGE_1_PARAM_CONTEXT_ID}"  -pn cdp-username -pv "${CDP_ONE_USERNAME}" -u "${CDP_ONE_NIFI_URL}" -ts "${CDP_ONE_TRUSTSTORE}" -tst "${CDP_ONE_TRUSTSTORE_TYPE}" -tsp "${CDP_ONE_TRUSTSTORE_PASSSWORD}" -bau "${CDP_ONE_USERNAME}" -bap "${CDP_ONE_PASSWORD}")
             echo "Updated stage 1 parameter cdp-username"
@@ -176,11 +190,16 @@ for filename in ${DIRECTORY}/${GIT_REPO_DIRECTORY}/*.json; do
 
     # Updated Nifi flow Stage 2 ETL and Data Engineering Parameter Context
     if [ "$file" == "step_2_data_engineering_ETL" ]; then
+
         echo "Get the cdp-create-hive-table-from-s3 parameter context ID"
         STAGE_2_PARAM_CONTEXT_ID=$(cli.sh nifi list-param-contexts -u "${CDP_ONE_NIFI_URL}" -ts "${CDP_ONE_TRUSTSTORE}" -tst "${CDP_ONE_TRUSTSTORE_TYPE}" -tsp "${CDP_ONE_TRUSTSTORE_PASSSWORD}" -bau "${CDP_ONE_USERNAME}" -bap "${CDP_ONE_PASSWORD}" -ot json | jq '.parameterContexts[].component| select( .name == "cdp-create-hive-table-from-s3") |.id')
-        echo "cdp-create-hive-table-from-s3 parameter context ID ${STAGE_2_PARAM_CONTEXT_ID}"
+        
+        echo "Delete the Parameter for stage 2 cdp-password"
+        STAGE1_DELETE_PARAM_CDP_PASSWORD=$(cli.sh nifi delete-param -pcid ${STAGE_2_PARAM_CONTEXT_ID} -pn cdp-password -u "${CDP_ONE_NIFI_URL}" -ts "${CDP_ONE_TRUSTSTORE}" -tst "${CDP_ONE_TRUSTSTORE_TYPE}" -tsp "${CDP_ONE_TRUSTSTORE_PASSSWORD}" -bau "${CDP_ONE_USERNAME}" -bap "${CDP_ONE_PASSWORD}")
 
-        stage_2_update_param_cdp_password=$(cli.sh nifi set-param -pcid "${STAGE_2_PARAM_CONTEXT_ID}"   -pn cdp-password  -ps "Yes" -pv "${CDP_ONE_PASSWORD}" -u "${CDP_ONE_NIFI_URL}" -ts "${CDP_ONE_TRUSTSTORE}" -tst "${CDP_ONE_TRUSTSTORE_TYPE}" -tsp "${CDP_ONE_TRUSTSTORE_PASSSWORD}" -bau "${CDP_ONE_USERNAME}" -bap "${CDP_ONE_PASSWORD}")
+        echo "set the parameter stage-2 cdp-password"
+        stage_2_update_param_cdp_password=$(cli.sh nifi set-param -pcid "${STAGE_2_PARAM_CONTEXT_ID}"   -pn cdp-password -pv '${CDP_ONE_PASSWORD}' -ps "true" -u "${CDP_ONE_NIFI_URL}" -ts "${CDP_ONE_TRUSTSTORE}" -tst "${CDP_ONE_TRUSTSTORE_TYPE}" -tsp "${CDP_ONE_TRUSTSTORE_PASSSWORD}" -bau "${CDP_ONE_USERNAME}" -bap "${CDP_ONE_PASSWORD}")
+        
         if [ "$CDP_ONE_USERNAME" != "gsandeepkumar" ]; then
             stage_2_update_param_cdp_username=$(cli.sh nifi set-param -pcid "${STAGE_2_PARAM_CONTEXT_ID}"  -pn cdp-username -pv "${CDP_ONE_USERNAME}" -u "${CDP_ONE_NIFI_URL}" -ts "${CDP_ONE_TRUSTSTORE}" -tst "${CDP_ONE_TRUSTSTORE_TYPE}" -tsp "${CDP_ONE_TRUSTSTORE_PASSSWORD}" -bau "${CDP_ONE_USERNAME}" -bap "${CDP_ONE_PASSWORD}")
             echo "Updated stage 1 parameter cdp-username"
