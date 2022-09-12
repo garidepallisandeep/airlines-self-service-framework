@@ -153,10 +153,10 @@ for filename in ${DIRECTORY}/${GIT_REPO_DIRECTORY}/*.json; do
         STAGE_1_DELETE_PARAM_DB_PASSWORD=$(cli.sh nifi delete-param -pcid ${STAGE_1_PARAM_CONTEXT_ID} -pn db_password -u "${CDP_ONE_NIFI_URL}" -ts "${CDP_ONE_TRUSTSTORE}" -tst "${CDP_ONE_TRUSTSTORE_TYPE}" -tsp "${CDP_ONE_TRUSTSTORE_PASSSWORD}" -bau "${CDP_ONE_USERNAME}" -bap "${CDP_ONE_PASSWORD}")
 
         echo "Set the stage-1 db_password parameter"
-        STAGE_1_SET_PARAM_DB_PASSWORD=$(cli.sh nifi set-param -pcid "${STAGE_1_PARAM_CONTEXT_ID}" -pn db_password -pv '${EXT_DB_PASSWORD}' -ps "true" -u "${CDP_ONE_NIFI_URL}" -ts "${CDP_ONE_TRUSTSTORE}" -tst "${CDP_ONE_TRUSTSTORE_TYPE}" -tsp "${CDP_ONE_TRUSTSTORE_PASSSWORD}" -bau "${CDP_ONE_USERNAME}" -bap "${CDP_ONE_PASSWORD}")
+        STAGE_1_SET_PARAM_DB_PASSWORD=$(cli.sh nifi set-param -pcid "${STAGE_1_PARAM_CONTEXT_ID}" -pn db_password -pv ${EXT_DB_PASSWORD} -ps "true" -u "${CDP_ONE_NIFI_URL}" -ts "${CDP_ONE_TRUSTSTORE}" -tst "${CDP_ONE_TRUSTSTORE_TYPE}" -tsp "${CDP_ONE_TRUSTSTORE_PASSSWORD}" -bau "${CDP_ONE_USERNAME}" -bap "${CDP_ONE_PASSWORD}")
 
         echo "Set the stage-1 cdp password parameter"
-        STAGE_1_SET_PARAM_CDP_PASSWORD=$(cli.sh nifi set-param -pcid "${STAGE_1_PARAM_CONTEXT_ID}" -pn cdp-password -pv '${CDP_ONE_PASSWORD}' -ps "true" -u "${CDP_ONE_NIFI_URL}" -ts "${CDP_ONE_TRUSTSTORE}" -tst "${CDP_ONE_TRUSTSTORE_TYPE}" -tsp "${CDP_ONE_TRUSTSTORE_PASSSWORD}" -bau "${CDP_ONE_USERNAME}" -bap "${CDP_ONE_PASSWORD}")
+        STAGE_1_SET_PARAM_CDP_PASSWORD=$(cli.sh nifi set-param -pcid "${STAGE_1_PARAM_CONTEXT_ID}" -pn cdp-password -pv ${CDP_ONE_PASSWORD} -ps "true" -u "${CDP_ONE_NIFI_URL}" -ts "${CDP_ONE_TRUSTSTORE}" -tst "${CDP_ONE_TRUSTSTORE_TYPE}" -tsp "${CDP_ONE_TRUSTSTORE_PASSSWORD}" -bau "${CDP_ONE_USERNAME}" -bap "${CDP_ONE_PASSWORD}")
 
         echo "Enable Stage 1 the controller services"
         STAGE_1_ENABLE_CONTROLLER_SERVICE=$(cli.sh nifi pg-enable-services -pgid "${STAGE_1_PG_ID}" -u "${CDP_ONE_NIFI_URL}" -ts "${CDP_ONE_TRUSTSTORE}" -tst "${CDP_ONE_TRUSTSTORE_TYPE}" -tsp "${CDP_ONE_TRUSTSTORE_PASSSWORD}" -bau "${CDP_ONE_USERNAME}" -bap "${CDP_ONE_PASSWORD}")
